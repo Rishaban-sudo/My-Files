@@ -57,7 +57,7 @@ getTeamID() {
 }
 
 getSigningCertificate() {
-    SIGNING_CERTIFICATE=$(openssl pkcs12 -in ${P12_CERTIFICATE} -nodes -passin pass:"$P12_CERTIFICATE_PWD" | openssl x509 -noout -subject | awk -F'[=/]' '{print $6}' | awk -F'[:]' '{print $1}')
+    SIGNING_CERTIFICATE=$(openssl pkcs12 -in "${P12_CERTIFICATE}" -nodes -passin pass:"$P12_CERTIFICATE_PWD" | openssl x509 -noout -subject | awk -F'[=/]' '{print $6}' | awk -F'[:]' '{print $1}')
     echo "${SIGNING_CERTIFICATE}"
 }
 
@@ -95,6 +95,8 @@ addP12CertificateToKeychain() {
 
 addProvisioningProfileToXcode() {
     getProvisioningProfileUUID
+    echo "UUID obtained from Provisioning Profile !!"
+    echo "${UUID}"
     cp "${PROVISIONING_PROFILE}" "/Users/$SYSTEM_NAME/Library/MobileDevice/Provisioning Profiles/${UUID}.mobileprovision"
 }
 
@@ -180,12 +182,24 @@ deleteKeychain() {
 
 
 # Execution
+echo "Adding P12 Certificate to Keychain !!"
 addP12CertificateToKeychain
+
+echo "Adding mobile provisioning to Xcode !!"
 addProvisioningProfileToXcode
+
+echo "Creating .xcconfig file !!"
 createXCconfig
+
+echo "Creating exportOptions.plist"
 createExportOptionsPlist
+
+echo "Archiving and creating IPA !!!!!!"
 archiveAndCreateIPA
 
 # Clean Up
-# removeProvisioningProfileFromXcode
+
+echo "Clean up initated !!"
+
+removeProvisioningProfileFromXcode
 deleteKeychain
